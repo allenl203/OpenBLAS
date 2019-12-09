@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
 
   FLOAT *a, *x, *y;
   FLOAT alpha[] = {1.0, 1.0};
-  FLOAT beta [] = {1.0, 1.0};
+  FLOAT beta [] = {1.0, 0.0};
   char trans='N';
   blasint m, i, j;
   blasint inc_x=1,inc_y=1;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]){
 
     		timeg /= loops;
 
-    		fprintf(stderr, " %10.2f MFlops\n", COMPSIZE * COMPSIZE * 2. * (double)m * (double)n / timeg * 1.e-6);
+    		fprintf(stderr, " %10.2f MFlops %10.6f sec\n", COMPSIZE * COMPSIZE * 2. * (double)m * (double)n / timeg * 1.e-6, timeg);
 
   	}
   }
@@ -258,7 +258,7 @@ int main(int argc, char *argv[]){
 
     		timeg /= loops;
 
-    		fprintf(stderr, " %10.2f MFlops\n", COMPSIZE * COMPSIZE * 2. * (double)m * (double)n / timeg * 1.e-6);
+    		fprintf(stderr, " %10.2f MFlops %10.6f sec\n", COMPSIZE * COMPSIZE * 2. * (double)m * (double)n / timeg * 1.e-6, timeg);
 
   	}
   }

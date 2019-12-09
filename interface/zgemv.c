@@ -77,6 +77,7 @@ void NAME(char *TRANS, blasint *M, blasint *N,
   blasint incy = *INCY;
 
   FLOAT *buffer;
+  int buffer_size;
 #ifdef SMP
   int nthreads;
 #endif
@@ -133,15 +134,20 @@ void NAME(char *TRANS, blasint *M, blasint *N,
 void CNAME(enum CBLAS_ORDER order,
 	   enum CBLAS_TRANSPOSE TransA,
 	   blasint m, blasint n,
-	   FLOAT *ALPHA,
-	   FLOAT  *a, blasint lda,
-	   FLOAT  *x, blasint incx,
-	   FLOAT *BETA,
-	   FLOAT  *y, blasint incy){
+	   void *VALPHA,
+	   void  *va, blasint lda,
+	   void  *vx, blasint incx,
+	   void *VBETA,
+	   void  *vy, blasint incy){
 
+  FLOAT *ALPHA = (FLOAT*) VALPHA;
+  FLOAT *a = (FLOAT*) va;
+  FLOAT *x = (FLOAT*) vx;
+  FLOAT *BETA = (FLOAT*) VBETA;
+  FLOAT *y = (FLOAT*) vy;
   FLOAT *buffer;
   blasint    lenx, leny;
-  int trans;
+  int trans, buffer_size;
   blasint info, t;
 #ifdef SMP
   int nthreads;
@@ -219,7 +225,7 @@ void CNAME(enum CBLAS_ORDER order,
   if (trans & 1) lenx = m;
   if (trans & 1) leny = n;
 
-  if (beta_r != ONE || beta_i != ZERO) SCAL_K(leny, 0, 0, beta_r, beta_i, y, abs(incy), NULL, 0, NULL, 0);
+  if (beta_r != ONE || beta_i != ZERO) SCAL_K(leny, 0, 0, beta_r, beta_i, y, blasabs(incy), NULL, 0, NULL, 0);
 
   if (alpha_r == ZERO && alpha_i == ZERO) return;
 
@@ -230,7 +236,19 @@ void CNAME(enum CBLAS_ORDER order,
   if (incx < 0) x -= (lenx - 1) * incx * 2;
   if (incy < 0) y -= (leny - 1) * incy * 2;
 
-  buffer = (FLOAT *)blas_memory_alloc(1);
+  buffer_size = 2 * (m + n) + 128 / sizeof(FLOAT);
+#ifdef WINDOWS_ABI
+  buffer_size += 160 / sizeof(FLOAT) ;
+#endif
+  // for alignment
+  buffer_size = (buffer_size + 3) & ~3;
+  STACK_ALLOC(buffer_size, FLOAT, buffer);
+
+#if defined(ARCH_X86_64) && defined(MAX_STACK_ALLOC) && MAX_STACK_ALLOC > 0
+  // cgemv_t.S return NaN if there are NaN or Inf in the buffer (see bug #746)
+  if(trans && stack_alloc_size)
+    memset(buffer, 0, MIN(BUFFER_SIZE, sizeof(FLOAT) * buffer_size));
+#endif
 
 #ifdef SMP
 
@@ -253,7 +271,7 @@ void CNAME(enum CBLAS_ORDER order,
   }
 #endif
 
-  blas_memory_free(buffer);
+  STACK_FREE(buffer);
 
   FUNCTION_PROFILE_END(4, m * n + m + n,  2 * m * n);
 

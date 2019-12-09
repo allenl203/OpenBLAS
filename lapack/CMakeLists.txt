@@ -1,5 +1,6 @@
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_BINARY_DIR})
 
 
 set(LAPACK_SOURCES
@@ -41,11 +42,18 @@ set(UNIT_SOURCES2
 GenerateNamedObjects("${LAPACK_SOURCES}")
 GenerateNamedObjects("${LAPACK_MANGLED_SOURCES}" "" "" false "" "" false 3)
 
-# TODO: laswp needs arch specific code
-GenerateNamedObjects("laswp/generic/laswp_k.c" "" "laswp_plus" false "" "" false 3)
-GenerateNamedObjects("laswp/generic/laswp_k.c" "MINUS" "laswp_minus" false "" "" false 3)
+GenerateNamedObjects("laswp/generic/laswp_k_4.c" "" "laswp_plus" false "" ""  false 3)
+GenerateNamedObjects("laswp/generic/laswp_k_4.c" "MINUS" "laswp_minus" false "" ""  false 3)
 
-if (SMP)
+# dynamic_arch laswp needs arch specific code ?
+#foreach(TARGET_CORE ${DYNAMIC_CORE})
+#      set(TSUFFIX "_${TARGET_CORE}")
+#
+#GenerateNamedObjects("laswp/generic/laswp_k_4.c" "" "laswp_plus" false "" ${TSUFFIX}  false 3)
+#GenerateNamedObjects("laswp/generic/laswp_k_4.c" "MINUS" "laswp_minus" false "" ${TSUFFIX}  false 3)
+#endforeach ()
+
+if (USE_THREAD)
 
   if (USE_OPENMP)
     set(GETRF_SRC getrf/getrf_parallel_omp.c)
@@ -55,7 +63,6 @@ if (SMP)
 
   # these do not have 'z' versions
   set(PARALLEL_SOURCES
-    ${GETRF_SRC}
     lauum/lauum_U_parallel.c
     lauum/lauum_L_parallel.c
     potrf/potrf_U_parallel.c
@@ -72,6 +79,10 @@ if (SMP)
     trtri/trtri_U_parallel.c
     trtri/trtri_L_parallel.c
   )
+
+  foreach (float_type ${FLOAT_TYPES})
+    GenerateNamedObjects("${GETRF_SRC}" "" "getrf_parallel" false "" "" false ${float_type})  
+  endforeach()
 
   GenerateNamedObjects("${PARALLEL_SOURCES}")
 endif ()

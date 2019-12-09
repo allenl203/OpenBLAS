@@ -47,7 +47,7 @@
 #define STACKSIZE 304
 #endif
 
-#ifdef linux
+#if defined(linux) || defined(__FreeBSD__)
 #ifndef __64BIT__
 #define M	r3
 #define	N	r4
@@ -144,6 +144,12 @@
 #define PREFETCHSIZE_C   8
 #endif
 
+#ifdef POWER8
+#define PREFETCHSIZE_A  24
+#define PREFETCHSIZE_C   8
+#endif
+
+
 #if !(defined(CONJ) && defined(XCONJ))
 #define FMADDR FMADD
 #define FMSUBR FNMSUB
@@ -220,7 +226,7 @@
 	stw	r0,    4 + FZERO
 #endif
 
-#ifdef linux
+#if defined(linux) || defined(__FreeBSD__)
 #ifndef __64BIT__
 	lwz	INCY,	 FRAMESLOT(0) + STACKSIZE(SP)
 	lwz	BUFFER,  FRAMESLOT(1) + STACKSIZE(SP)

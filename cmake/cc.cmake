@@ -3,7 +3,7 @@
 ## Description: Ported from portion of OpenBLAS/Makefile.system
 ##              Sets C related variables.
 
-if (${CMAKE_C_COMPILER} STREQUAL "GNU" OR ${CMAKE_C_COMPILER} STREQUAL "LSB" OR ${CMAKE_C_COMPILER} STREQUAL "Clang")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_C_COMPILER_ID} STREQUAL "LSB" OR ${CMAKE_C_COMPILER_ID} MATCHES "Clang")
 
   set(CCOMMON_OPT "${CCOMMON_OPT} -Wall")
   set(COMMON_PROF "${COMMON_PROF} -fno-inline")
@@ -15,7 +15,7 @@ if (${CMAKE_C_COMPILER} STREQUAL "GNU" OR ${CMAKE_C_COMPILER} STREQUAL "LSB" OR 
 
   if (NO_BINARY_MODE)
 
-    if (${ARCH} STREQUAL "mips64")
+    if (MIPS64)
       if (BINARY64)
         set(CCOMMON_OPT "${CCOMMON_OPT} -mabi=64")
       else ()
@@ -24,17 +24,12 @@ if (${CMAKE_C_COMPILER} STREQUAL "GNU" OR ${CMAKE_C_COMPILER} STREQUAL "LSB" OR 
       set(BINARY_DEFINED 1)
     endif ()
 
-    if (${CORE} STREQUAL "LOONGSON3A")
+    if (${CORE} STREQUAL "LOONGSON3A" OR ${CORE} STREQUAL "LOONGSON3B")
       set(CCOMMON_OPT "${CCOMMON_OPT} -march=mips64")
       set(FCOMMON_OPT "${FCOMMON_OPT} -march=mips64")
     endif ()
 
-    if (${CORE} STREQUAL "LOONGSON3B")
-      set(CCOMMON_OPT "${CCOMMON_OPT} -march=mips64")
-      set(FCOMMON_OPT "${FCOMMON_OPT} -march=mips64")
-    endif ()
-
-    if (${OSNAME} STREQUAL "AIX")
+    if (CMAKE_SYSTEM_NAME STREQUAL "AIX")
       set(BINARY_DEFINED 1)
     endif ()
   endif ()
@@ -48,7 +43,7 @@ if (${CMAKE_C_COMPILER} STREQUAL "GNU" OR ${CMAKE_C_COMPILER} STREQUAL "LSB" OR 
   endif ()
 endif ()
 
-if (${CMAKE_C_COMPILER} STREQUAL "PGI")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "PGI")
   if (BINARY64)
     set(CCOMMON_OPT "${CCOMMON_OPT} -tp p7-64")
   else ()
@@ -56,7 +51,7 @@ if (${CMAKE_C_COMPILER} STREQUAL "PGI")
   endif ()
 endif ()
 
-if (${CMAKE_C_COMPILER} STREQUAL "PATHSCALE")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "PATHSCALE")
   if (BINARY64)
     set(CCOMMON_OPT "${CCOMMON_OPT} -m64")
   else ()
@@ -64,9 +59,9 @@ if (${CMAKE_C_COMPILER} STREQUAL "PATHSCALE")
   endif ()
 endif ()
 
-if (${CMAKE_C_COMPILER} STREQUAL "OPEN64")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "OPEN64")
 
-  if (${ARCH} STREQUAL "mips64")
+  if (MIPS64)
 
     if (NOT BINARY64)
       set(CCOMMON_OPT "${CCOMMON_OPT} -n32")
@@ -92,12 +87,12 @@ if (${CMAKE_C_COMPILER} STREQUAL "OPEN64")
   endif ()
 endif ()
 
-if (${CMAKE_C_COMPILER} STREQUAL "SUN")
+if (${CMAKE_C_COMPILER_ID} STREQUAL "SUN")
   set(CCOMMON_OPT "${CCOMMON_OPT} -w")
-  if (${ARCH} STREQUAL "x86")
+  if (X86)
     set(CCOMMON_OPT "${CCOMMON_OPT} -m32")
   else ()
-    set(FCOMMON_OPT "${FCOMMON_OPT} -m64")
+    set(CCOMMON_OPT "${CCOMMON_OPT} -m64")
   endif ()
 endif ()
 

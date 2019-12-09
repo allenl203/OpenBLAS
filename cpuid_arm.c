@@ -34,7 +34,7 @@
 #define CPU_CORTEXA15       	4
 
 static char *cpuname[] = {
-  "UNKOWN",
+  "UNKNOWN",
   "ARMV6",
   "ARMV7",
   "CORTEXA9",
@@ -74,7 +74,7 @@ int get_feature(char *search)
   	fclose(infile);
 
 
-	if( p == NULL ) return;
+	if( p == NULL ) return 0;
 
 	t = strtok(p," ");
 	while( t = strtok(NULL," "))

@@ -63,6 +63,7 @@ BLASLONG (*ismin_k) (BLASLONG, float *, BLASLONG);
 
   float  (*snrm2_k) (BLASLONG, float *, BLASLONG);
   float  (*sasum_k) (BLASLONG, float *, BLASLONG);
+  float  (*ssum_k)  (BLASLONG, float *, BLASLONG);
   int    (*scopy_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
   float  (*sdot_k)  (BLASLONG, float *, BLASLONG, float *, BLASLONG);
   double (*dsdot_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
@@ -154,6 +155,7 @@ BLASLONG (*idmin_k) (BLASLONG, double *, BLASLONG);
 
   double (*dnrm2_k) (BLASLONG, double *, BLASLONG);
   double (*dasum_k) (BLASLONG, double *, BLASLONG);
+  double (*dsum_k)  (BLASLONG, double *, BLASLONG);
   int    (*dcopy_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG);
   double (*ddot_k)  (BLASLONG, double *, BLASLONG, double *, BLASLONG);
   int    (*drot_k)  (BLASLONG, double *, BLASLONG, double *, BLASLONG, double, double);
@@ -245,6 +247,7 @@ BLASLONG (*iqmin_k) (BLASLONG, xdouble *, BLASLONG);
 
  xdouble (*qnrm2_k) (BLASLONG, xdouble *, BLASLONG);
  xdouble (*qasum_k) (BLASLONG, xdouble *, BLASLONG);
+ xdouble (*qsum_k)  (BLASLONG, xdouble *, BLASLONG);
   int    (*qcopy_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
  xdouble (*qdot_k)  (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
   int    (*qrot_k)  (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG, xdouble, xdouble);
@@ -332,9 +335,10 @@ BLASLONG (*icamin_k)(BLASLONG, float *, BLASLONG);
 
   float (*cnrm2_k) (BLASLONG, float *, BLASLONG);
   float (*casum_k) (BLASLONG, float *, BLASLONG);
+  float (*csum_k)  (BLASLONG, float *, BLASLONG);
   int    (*ccopy_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
-  float _Complex (*cdotu_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
-  float _Complex (*cdotc_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
+  openblas_complex_float (*cdotu_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
+  openblas_complex_float (*cdotc_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG);
   int    (*csrot_k) (BLASLONG, float *, BLASLONG, float *, BLASLONG, float, float);
 
   int    (*caxpy_k) (BLASLONG, BLASLONG, BLASLONG, float, float, float *, BLASLONG, float *, BLASLONG, float *, BLASLONG);
@@ -495,9 +499,10 @@ BLASLONG (*izamin_k)(BLASLONG, double *, BLASLONG);
 
   double (*znrm2_k) (BLASLONG, double *, BLASLONG);
   double (*zasum_k) (BLASLONG, double *, BLASLONG);
+  double (*zsum_k)  (BLASLONG, double *, BLASLONG);
   int    (*zcopy_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG);
-  double _Complex (*zdotu_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG);
-  double _Complex (*zdotc_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG);
+  openblas_complex_double (*zdotu_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG);
+  openblas_complex_double (*zdotc_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG);
   int    (*zdrot_k) (BLASLONG, double *, BLASLONG, double *, BLASLONG, double, double);
 
   int    (*zaxpy_k) (BLASLONG, BLASLONG, BLASLONG, double, double, double *, BLASLONG, double *, BLASLONG, double *, BLASLONG);
@@ -660,9 +665,10 @@ BLASLONG (*ixamin_k)(BLASLONG, xdouble *, BLASLONG);
 
   xdouble (*xnrm2_k) (BLASLONG, xdouble *, BLASLONG);
   xdouble (*xasum_k) (BLASLONG, xdouble *, BLASLONG);
+  xdouble (*xsum_k) (BLASLONG, xdouble *, BLASLONG);
   int    (*xcopy_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
-  xdouble _Complex (*xdotu_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
-  xdouble _Complex (*xdotc_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
+  openblas_complex_xdouble (*xdotu_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
+  openblas_complex_xdouble (*xdotc_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
   int    (*xqrot_k) (BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG, xdouble, xdouble);
 
   int    (*xaxpy_k) (BLASLONG, BLASLONG, BLASLONG, xdouble, xdouble, xdouble *, BLASLONG, xdouble *, BLASLONG, xdouble *, BLASLONG);
@@ -888,7 +894,7 @@ BLASLONG (*ixamin_k)(BLASLONG, xdouble *, BLASLONG);
   int    (*sgeadd_k) (BLASLONG, BLASLONG, float, float *, BLASLONG, float, float *, BLASLONG); 
   int    (*dgeadd_k) (BLASLONG, BLASLONG, double, double *, BLASLONG, double, double *, BLASLONG); 
   int    (*cgeadd_k) (BLASLONG, BLASLONG, float, float,  float *,  BLASLONG, float, float, float *, BLASLONG); 
-  int    (*zgeadd_k) (BLASLONG, BLASLONG, float, double, double *, BLASLONG, double, double, double *, BLASLONG); 
+  int    (*zgeadd_k) (BLASLONG, BLASLONG, double, double, double *, BLASLONG, double, double, double *, BLASLONG); 
 
 } gotoblas_t;
 

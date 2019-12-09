@@ -79,9 +79,17 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ALPHA	[fp, #-280]
 
+#if !defined(__ARM_PCS_VFP)
+#define OLD_ALPHA_SOFTFP	[fp, #4]
+#define OLD_A_SOFTFP	[fp, #12 ]
+#define B	[fp, #16 ]
+#define C	[fp, #20 ]
+#define OLD_LDC	[fp, #24 ]
+#else
 #define B	[fp, #4 ]
 #define C	[fp, #8 ]
 #define OLD_LDC	[fp, #12 ]
+#endif
 
 #define I	r0
 #define J	r1
@@ -323,7 +331,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	add	r4  , CO2, r3
 	pld	[ CO2 , #C_PRE ]
 
-	fldmiad CO1, { d8 - d11 }
+	vldmia.f64 CO1, { d8 - d11 }
 	pld	[ r4 , #C_PRE ]
 
 	fmacd	d8 , d0 , d16
@@ -344,7 +352,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fmacd	d15, d0 , d23
 	fstd	d11, [CO1, #24 ]
 
-	fldmiad r4, { d8 - d11 }
+	vldmia.f64 r4, { d8 - d11 }
 
 	fmacd	d8 , d0 , d24
 	fstd	d12, [CO2]
@@ -359,7 +367,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	pld	[ CO2 , #C_PRE ]
 
-	fldmiad CO2, { d12 - d15 }
+	vldmia.f64 CO2, { d12 - d15 }
 
 	fstd	d8 , [r4 ]
 	fmacd	d12, d0 , d28
@@ -370,7 +378,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fstd	d11, [r4 , #24 ]
 	fmacd	d15, d0 , d31
 
-	fstmiad CO2, { d12 - d15 }
+	vstmia.f64 CO2, { d12 - d15 }
 
 	add	CO1, CO1, #32
 
@@ -878,6 +886,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	add	fp, sp, #24
 	sub	sp, sp, #STACKSIZE				// reserve stack
 
+#if !defined(__ARM_PCS_VFP)
+	vldr	OLD_ALPHA, OLD_ALPHA_SOFTFP
+	ldr	OLD_A, OLD_A_SOFTFP
+#endif
 	str	OLD_M, M
 	str	OLD_N, N
 	str	OLD_K, K

@@ -27,12 +27,14 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common.h"
 
-#if defined(BULLDOZER) || defined(PILEDRIVER) || defined(STEAMROLLER)
+#if defined(BULLDOZER) || defined(PILEDRIVER) || defined(STEAMROLLER) || defined(EXCAVATOR)
 #include "dscal_microk_bulldozer-2.c"
 #elif defined(SANDYBRIDGE)
 #include "dscal_microk_sandy-2.c"
-#elif defined(HASWELL)
+#elif defined(HASWELL) || defined(ZEN)
 #include "dscal_microk_haswell-2.c"
+#elif  defined (SKYLAKEX)
+#include "dscal_microk_skylakex-2.c"
 #endif
 
 
@@ -99,7 +101,7 @@ static void dscal_kernel_inc_8(BLASLONG n, FLOAT *alpha, FLOAT *x, BLASLONG inc_
 
 	"leaq		(%1,%4,4), %2		            \n\t"
 
-        ".align 16                                          \n\t"
+        ".p2align 4                                          \n\t"
 
         "1:                                                 \n\t"
 	"movsd	(%1)     , %%xmm4			    \n\t"
@@ -134,14 +136,14 @@ static void dscal_kernel_inc_8(BLASLONG n, FLOAT *alpha, FLOAT *x, BLASLONG inc_
 	"jnz    1b					    \n\t"
 
         :
+          "+r" (n)      // 0
         :
-          "r" (n),      // 0
           "r" (x),      // 1
           "r" (x1),     // 2
           "r" (alpha),  // 3
           "r" (inc_x),  // 4
           "r" (inc_x3)  // 5
-        : "cc", "%0", "%1", "%2",
+        : "cc", //"%0", "%1", "%2",
           "%xmm0", "%xmm1", "%xmm2", "%xmm3",
           "%xmm4", "%xmm5", "%xmm6", "%xmm7",
           "%xmm8", "%xmm9", "%xmm10", "%xmm11",

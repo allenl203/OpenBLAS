@@ -66,10 +66,19 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ALPHA	[fp, #-276 ]
 
+#if !defined(__ARM_PCS_VFP)
+#define OLD_ALPHA_SOFTFP	[fp, #4]
+#define OLD_A_SOFTFP	[fp, #12 ]
+#define B	[fp, #16 ]
+#define OLD_C	[fp, #20 ]
+#define OLD_LDC	[fp, #24 ]
+#define OFFSET  [fp, #28 ]
+#else
 #define B	[fp, #4 ]
 #define OLD_C	[fp, #8 ]
 #define OLD_LDC	[fp, #12 ]
 #define OFFSET  [fp, #16 ]
+#endif
 
 #define I	r0
 #define J	r1
@@ -119,10 +128,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fldd	d8 , [ BO ]
 
 	pld	[ AO , #A_PRE ]
-	fldmiad AO!, { d0 - d1}
+	vldmia.f64 AO!, { d0 - d1}
 
 	fmuld	d16  , d0,  d8
-	fldmiad AO!, { d2 - d3}
+	vldmia.f64 AO!, { d2 - d3}
 	fmuld	d17  , d1,  d8
 	fldd	d9 , [ BO, #8 ]
 	fmuld	d18  , d2,  d8
@@ -139,10 +148,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fmuld	d23  , d3,  d9
 
 	fmuld	d24  , d0,  d10
-	fldmiad AO!, { d4 - d5 }
+	vldmia.f64 AO!, { d4 - d5 }
 	fmuld	d25  , d1,  d10
 	fmuld	d26  , d2,  d10
-	fldmiad AO!, { d6 - d7 }
+	vldmia.f64 AO!, { d6 - d7 }
 	fmuld	d27  , d3,  d10
 
 	fldd	d13, [ BO, #8 ]
@@ -164,10 +173,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fldd	d8 , [ BO ]
 
 	pld	[ AO , #A_PRE ]
-	fldmiad AO!, { d0 - d1}
+	vldmia.f64 AO!, { d0 - d1}
 
 	fmacd	d16  , d0,  d8
-	fldmiad AO!, { d2 - d3}
+	vldmia.f64 AO!, { d2 - d3}
 	fmacd	d17  , d1,  d8
 	fldd	d9 , [ BO, #8 ]
 	fmacd	d18  , d2,  d8
@@ -184,10 +193,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fmacd	d23  , d3,  d9
 
 	fmacd	d24  , d0,  d10
-	fldmiad AO!, { d4 - d5 }
+	vldmia.f64 AO!, { d4 - d5 }
 	fmacd	d25  , d1,  d10
 	fmacd	d26  , d2,  d10
-	fldmiad AO!, { d6 - d7 }
+	vldmia.f64 AO!, { d6 - d7 }
 	fmacd	d27  , d3,  d10
 
 	fldd	d13, [ BO, #8 ]
@@ -216,11 +225,11 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fldd	d8 , [ BO ]
 	fmacd	d21  , d5,  d13
 	fmacd	d22  , d6,  d13
-	fldmiad AO!, { d0 - d1 }
+	vldmia.f64 AO!, { d0 - d1 }
 	fmacd	d23  , d7,  d13
 
 	fmacd	d24  , d4,  d14
-	fldmiad AO!, { d2 - d3 }
+	vldmia.f64 AO!, { d2 - d3 }
 	fmacd	d25  , d5,  d14
 	fldd	d9 , [ BO, #8 ]
 	fmacd	d26  , d6,  d14
@@ -248,10 +257,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fmacd	d19  , d3,  d8
 
 	fmacd	d20  , d0,  d9
-	fldmiad AO!, { d4 - d5 }
+	vldmia.f64 AO!, { d4 - d5 }
 	fmacd	d21  , d1,  d9
 	fmacd	d22  , d2,  d9
-	fldmiad AO!, { d6 - d7 }
+	vldmia.f64 AO!, { d6 - d7 }
 	fmacd	d23  , d3,  d9
 
 	fmacd	d24  , d0,  d10
@@ -381,7 +390,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	fstd	d11, [r4 , #24 ]
 	fmuld	d15, d0 , d31
 
-	fstmiad CO2, { d12 - d15 }
+	vstmia.f64 CO2, { d12 - d15 }
 
 	add	CO1, CO1, #32
 
@@ -846,6 +855,10 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	add	fp, sp, #24
 	sub	sp, sp, #STACKSIZE				// reserve stack
 
+#if !defined(__ARM_PCS_VFP)
+	vldr	OLD_ALPHA, OLD_ALPHA_SOFTFP
+	ldr	OLD_A, OLD_A_SOFTFP
+#endif
 	str	OLD_M, M
 	str	OLD_N, N
 	str	OLD_K, K

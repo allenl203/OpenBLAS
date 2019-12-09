@@ -41,6 +41,10 @@
 
 #ifndef ASSEMBLER
 
+#ifdef C_MSVC
+#include <intrin.h>
+#endif
+
 #define MB
 #define WMB
 
@@ -58,7 +62,7 @@ static void __inline blas_lock(volatile BLASULONG *address){
 
 #if defined(_MSC_VER) && !defined(__clang__)
 	// use intrinsic instead of inline assembly
-	ret = _InterlockedExchange(address, 1);
+	ret = _InterlockedExchange((volatile LONG *)address, 1);
 	// inline assembly
 	/*__asm {
 		mov eax, address
@@ -170,13 +174,20 @@ static __inline int blas_quickdivide(unsigned int x, unsigned int y){
 
   if (y <= 1) return x;
 
+#if defined(_MSC_VER) && !defined(__clang__)
+  result = x/y;
+  return result;
+#else
+#if (MAX_CPU_NUMBER > 64)
+  if ( y > 64) {
+	  result = x/y;
+	  return result;
+  }
+#endif
+	
   y = blas_quick_divide_table[y];
 
-#if defined(_MSC_VER) && !defined(__clang__)
-  (void*)result;
-  return x*y;
-#else
-  __asm__ __volatile__  ("mull %0" :"=d" (result) :"a"(x), "0" (y));
+  __asm__ __volatile__  ("mull %0" :"=d" (result), "+a"(x): "0" (y));
 
   return result;
 #endif
@@ -203,7 +214,7 @@ static __inline int blas_quickdivide(unsigned int x, unsigned int y){
 #endif
 
 #if defined(PILEDRIVER) || defined(BULLDOZER) || defined(STEAMROLLER) || defined(EXCAVATOR)
-//Enable some optimazation for barcelona.
+//Enable some optimization for barcelona.
 #define BARCELONA_OPTIMIZATION
 #endif
 
@@ -322,7 +333,7 @@ REALNAME:
 #endif
 #endif
 
-#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_NETBSD) || defined(__ELF__)
+#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_NETBSD) || defined(OS_OPENBSD) || defined(__ELF__)
 #define PROLOGUE \
 	.text; \
 	.align 16; \

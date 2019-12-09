@@ -39,7 +39,7 @@
 #define ASSEMBLER
 #include "common.h"
 
-#ifdef linux
+#if defined(linux) || defined(__FreeBSD__)
 #ifndef __64BIT__
 #define M	r3
 #define	N	r4
@@ -170,6 +170,11 @@
 #define PREFETCHSIZE_C  24
 #endif
 
+#ifdef POWER8
+#define PREFETCHSIZE_A  24
+#define PREFETCHSIZE_C  24
+#endif
+
 #ifndef XCONJ
 #define FMADDR FMADD
 #define FMSUBR FNMSUB
@@ -245,7 +250,7 @@
 	stw	r22,   176(SP)
 #endif
 
-#ifdef linux
+#if defined(linux) || defined(__FreeBSD__)
 #ifndef __64BIT__
 	lwz	INCY,  FRAMESLOT(0) + STACKSIZE(SP)
 #else

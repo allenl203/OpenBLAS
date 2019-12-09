@@ -30,15 +30,15 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(NEHALEM)
 #include "sgemv_t_microk_nehalem-4.c"
-#elif defined(BULLDOZER) || defined(PILEDRIVER) || defined(STEAMROLLER)
+#elif defined(BULLDOZER) || defined(PILEDRIVER) || defined(STEAMROLLER)  || defined(EXCAVATOR)
 #include "sgemv_t_microk_bulldozer-4.c"
 #elif defined(SANDYBRIDGE)
 #include "sgemv_t_microk_sandy-4.c"
-#elif defined(HASWELL)
+#elif defined(HASWELL) || defined(ZEN) || defined (SKYLAKEX)
 #include "sgemv_t_microk_haswell-4.c"
 #endif
 
-#if defined(STEAMROLLER)
+#if defined(STEAMROLLER) || defined(EXCAVATOR)
 #define NBMAX 2048
 #else
 #define NBMAX 4096
@@ -105,7 +105,7 @@ static void sgemv_kernel_4x2(BLASLONG n, FLOAT *ap0, FLOAT *ap1, FLOAT *x, FLOAT
 	"cmpq	$0, %1				\n\t"
 	"je	3f			\n\t"
 
-        ".align 16                              \n\t"
+	//        ".align 16                              \n\t"
         "1:                            \n\t"
 
 	"movups  (%5,%0,4) , %%xmm14		\n\t" // x
@@ -139,9 +139,9 @@ static void sgemv_kernel_4x2(BLASLONG n, FLOAT *ap0, FLOAT *ap1, FLOAT *x, FLOAT
 	"movss	       %%xmm11,4(%2)	        \n\t"
 
         :
-   	:
-	"r" (i),	 // 0
-	"r" (n),	 // 1
+	"+r" (i),	 // 0
+	"+r" (n)	 // 1
+	:
         "r" (y),         // 2    
         "r" (ap0),       // 3
         "r" (ap1),       // 4
@@ -183,7 +183,7 @@ static void sgemv_kernel_4x1(BLASLONG n, FLOAT *ap, FLOAT *x, FLOAT *y)
 	"cmpq	$0, %1				\n\t"
 	"je	3f			\n\t"
 
-        ".align 16                              \n\t"
+	//        ".align 16                              \n\t"
         "1:                            \n\t"
 
 	"movups    (%3,%0,4) , %%xmm12		\n\t"
@@ -208,9 +208,9 @@ static void sgemv_kernel_4x1(BLASLONG n, FLOAT *ap, FLOAT *x, FLOAT *y)
 	"movss	       %%xmm10, (%2)	        \n\t"
 
         :
-   	:
-	"r" (i),	 // 0
-	"r" (n),	 // 1
+	"+r" (i),	 // 0
+	"+r" (n)	 // 1
+	:
         "r" (y),         // 2    
         "r" (ap),        // 3
         "r" (x)          // 4
@@ -258,7 +258,7 @@ static void add_y(BLASLONG n, FLOAT da , FLOAT *src, FLOAT *dest, BLASLONG inc_d
 	"movss	 (%2) , %%xmm10                 \n\t"
 	"shufps  $0 , %%xmm10 , %%xmm10		\n\t"
 
-        ".align 16                              \n\t"
+	//        ".align 16                              \n\t"
         "1:                            \n\t"
 
 	"movups  (%3,%0,4) , %%xmm12		\n\t"
@@ -272,9 +272,9 @@ static void add_y(BLASLONG n, FLOAT da , FLOAT *src, FLOAT *dest, BLASLONG inc_d
         "jnz            1b              \n\t"
 
         :
-   	:
-	"r" (i),	  // 0
-	"r" (n),	  // 1
+	"+r" (i),	  // 0
+	"+r" (n)	  // 1
+	:
         "r" (&da),        // 2    
         "r" (src),        // 3
         "r" (dest)        // 4
@@ -406,9 +406,9 @@ int CNAME(BLASLONG m, BLASLONG n, BLASLONG dummy1, FLOAT alpha, FLOAT *a, BLASLO
 		{
 
 			sgemv_kernel_4x1(NB,a_ptr,xbuffer,ybuffer);
-			a_ptr  += lda;
+			// a_ptr  += lda;
 			*y_ptr += ybuffer[0] * alpha;
-			y_ptr  += inc_y;
+			// y_ptr  += inc_y;
 
 		}
 		a += NB;

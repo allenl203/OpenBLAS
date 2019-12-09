@@ -1,7 +1,7 @@
 TOPDIR	= ../..
 include ../../Makefile.system
 
-COMMONOBJS	 = memory.$(SUFFIX) xerbla.$(SUFFIX) c_abs.$(SUFFIX) z_abs.$(SUFFIX) openblas_set_num_threads.$(SUFFIX) openblas_get_num_threads.$(SUFFIX) openblas_get_num_procs.$(SUFFIX) openblas_get_config.$(SUFFIX) openblas_get_parallel.$(SUFFIX) openblas_error_handle.$(SUFFIX)
+COMMONOBJS	 = memory.$(SUFFIX) xerbla.$(SUFFIX) c_abs.$(SUFFIX) z_abs.$(SUFFIX) openblas_set_num_threads.$(SUFFIX) openblas_get_num_threads.$(SUFFIX) openblas_get_num_procs.$(SUFFIX) openblas_get_config.$(SUFFIX) openblas_get_parallel.$(SUFFIX) openblas_error_handle.$(SUFFIX) openblas_env.$(SUFFIX)
 
 #COMMONOBJS	+= slamch.$(SUFFIX) slamc3.$(SUFFIX) dlamch.$(SUFFIX)  dlamc3.$(SUFFIX)
 
@@ -15,7 +15,15 @@ endif
 # COMMONOBJS	+=  info.$(SUFFIX)
 
 ifeq ($(DYNAMIC_ARCH), 1)
+ifeq ($(ARCH),arm64)
+COMMONOBJS	+=  dynamic_arm64.$(SUFFIX)
+else
+ifeq ($(ARCH),power)
+COMMONOBJS	+=  dynamic_power.$(SUFFIX)
+else
 COMMONOBJS	+=  dynamic.$(SUFFIX)
+endif
+endif
 else
 COMMONOBJS	+=  parameter.$(SUFFIX)
 endif
@@ -71,7 +79,15 @@ BLAS_SERVER = blas_server.c
 endif
 
 ifeq ($(DYNAMIC_ARCH), 1)
+ifeq ($(ARCH),arm64)
+HPLOBJS = memory.$(SUFFIX) xerbla.$(SUFFIX) dynamic_arm64.$(SUFFIX)
+else
+ifeq ($(ARCH),power)
+HPLOBJS = memory.$(SUFFIX) xerbla.$(SUFFIX) dynamic_power.$(SUFFIX)
+else
 HPLOBJS = memory.$(SUFFIX) xerbla.$(SUFFIX) dynamic.$(SUFFIX)
+endif
+endif
 else
 HPLOBJS = memory.$(SUFFIX) xerbla.$(SUFFIX) parameter.$(SUFFIX)
 endif
@@ -116,6 +132,9 @@ openblas_get_parallel.$(SUFFIX) : openblas_get_parallel.c
 	$(CC) $(CFLAGS) -c $< -o $(@F)
 
 openblas_error_handle.$(SUFFIX) : openblas_error_handle.c
+	$(CC) $(CFLAGS) -c $< -o $(@F)
+
+openblas_env.$(SUFFIX) : openblas_env.c
 	$(CC) $(CFLAGS) -c $< -o $(@F)
 
 blasL1thread.$(SUFFIX) : blas_l1_thread.c ../../common.h ../../common_thread.h

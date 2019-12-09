@@ -3,6 +3,21 @@
 ## Description: Ported from portion of OpenBLAS/Makefile.system
 ##              Sets Fortran related variables.
 
+if (INTERFACE64)
+  set(SUFFIX64 64)
+  set(SUFFIX64_UNDERSCORE _64)
+endif()
+
+if (${F_COMPILER} STREQUAL "FLANG")
+  set(CCOMMON_OPT "${CCOMMON_OPT} -DF_INTERFACE_FLANG")
+  if (BINARY64 AND INTERFACE64)
+    set(FCOMMON_OPT "${FCOMMON_OPT} -i8")
+  endif ()
+  if (USE_OPENMP)
+    set(FCOMMON_OPT "${FCOMMON_OPT} -fopenmp")
+  endif ()
+endif ()
+
 if (${F_COMPILER} STREQUAL "G77")
   set(CCOMMON_OPT "${CCOMMON_OPT} -DF_INTERFACE_G77")
   set(FCOMMON_OPT "${FCOMMON_OPT} -Wall")
@@ -29,13 +44,16 @@ endif ()
 
 if (${F_COMPILER} STREQUAL "GFORTRAN")
   set(CCOMMON_OPT "${CCOMMON_OPT} -DF_INTERFACE_GFORT")
-  set(FCOMMON_OPT "${FCOMMON_OPT} -Wall")
+  # ensure reentrancy of lapack codes
+  set(FCOMMON_OPT "${FCOMMON_OPT} -Wall -frecursive")
+  # work around ABI violation in passing string arguments from C
+  set(FCOMMON_OPT "${FCOMMON_OPT} -fno-optimize-sibling-calls")
   #Don't include -lgfortran, when NO_LAPACK=1 or lsbcc
   if (NOT NO_LAPACK)
     set(EXTRALIB "{EXTRALIB} -lgfortran")
   endif ()
   if (NO_BINARY_MODE)
-    if (${ARCH} STREQUAL "mips64")
+    if (MIPS64)
       if (BINARY64)
         set(FCOMMON_OPT "${FCOMMON_OPT} -mabi=64")
       else ()
@@ -115,7 +133,7 @@ if (${F_COMPILER} STREQUAL "PATHSCALE")
     endif ()
   endif ()
 
-  if (NOT ${ARCH} STREQUAL "mips64")
+  if (NOT MIPS64)
     if (NOT BINARY64)
       set(FCOMMON_OPT "${FCOMMON_OPT} -m32")
     else ()
@@ -143,7 +161,7 @@ if (${F_COMPILER} STREQUAL "OPEN64")
     endif ()
   endif ()
 
-  if (${ARCH} STREQUAL "mips64")
+  if (MIPS64)
 
     if (NOT BINARY64)
       set(FCOMMON_OPT "${FCOMMON_OPT} -n32")
@@ -174,7 +192,7 @@ endif ()
 
 if (${F_COMPILER} STREQUAL "SUN")
   set(CCOMMON_OPT "${CCOMMON_OPT} -DF_INTERFACE_SUN")
-  if (${ARCH} STREQUAL "x86")
+  if (X86)
     set(FCOMMON_OPT "${FCOMMON_OPT} -m32")
   else ()
     set(FCOMMON_OPT "${FCOMMON_OPT} -m64")
